@@ -39,7 +39,7 @@
         }
 
         /* Variantes Específicas de Modo Claro */
-        html.theme-light-white, html.theme-light-classic {
+        html.theme-light-classic {
             --bg-base: #ffffff; /* Blanco puro dominante */
         }
 
@@ -169,74 +169,13 @@
         .mobile-menu-btn { display: none; }
         .header-actions { display: flex; gap: 8px; align-items: center; }
 
-        /* Dropdown de Temas */
-        .theme-selector { position: relative; }
-        .theme-dropdown {
-            position: absolute;
-            top: calc(100% + 8px);
-            right: 0;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(-10px);
-            transition: var(--transition-smooth);
-            min-width: 200px;
-            box-shadow: 0 10px 40px var(--glass-shadow);
-        }
         .theme-selector.open .theme-dropdown {
             opacity: 1;
             pointer-events: auto;
             transform: translateY(0);
         }
-        .theme-option {
-            background: transparent;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 8px;
-            color: var(--text-primary);
-            text-align: left;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .theme-option:hover, .theme-option.active {
-            background: var(--glass-active);
-            font-weight: 500;
-        }
 
-        /* Efecto Cuadrícula para tema oscuro */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            transition: opacity 0.5s ease;
-            opacity: 0;
-            background-image: 
-                linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-            background-size: 40px 40px;
-        }
-        
-        html.theme-dark-grid {
-            --bg-base: #000000; /* Fondo totalmente oscuro */
-        }
-        
-        html.theme-dark-grid body::before {
-            opacity: 1;
-        }
+
 
         @media (max-width: 768px) {
             .glass-nav { display: none; }
@@ -821,26 +760,24 @@
             
             <!-- Actions (Theme Toggle + Mobile Menu) -->
             <div class="header-actions" id="headerActions" style="opacity: 0;">
-                <div class="theme-selector" id="themeSelectorDiv">
-                    <button class="theme-toggle" id="themeToggleBtn" aria-label="Cambiar Tema">
-                        <!-- Icono de paleta de colores -->
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"></circle>
-                            <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"></circle>
-                            <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"></circle>
-                            <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"></circle>
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c1.38 0 2.5-1.12 2.5-2.5 0-.61-.23-1.17-.6-1.61-.17-.21-.28-.48-.28-.76 0-.83.67-1.5 1.5-1.5H18c2.21 0 4-1.79 4-4 0-5.52-4.48-10-10-10z"></path>
-                        </svg>
-                    </button>
-                    <div class="theme-dropdown" id="themeDropdown">
-                        <button class="theme-option active" data-theme="light-green">Claro (Verde actual)</button>
-                        <button class="theme-option" data-theme="light-classic">Claro (Naranja/Verde)</button>
-                        <button class="theme-option" data-theme="light-white">Claro (Blanco puro)</button>
-                        <button class="theme-option" data-theme="dark-green">Oscuro (Verde)</button>
-                        <button class="theme-option" data-theme="dark-grid">Oscuro (Cuadrícula)</button>
-                        <button class="theme-option" data-theme="dark-thermal">Oscuro (Lámpara térmica)</button>
-                    </div>
-                </div>
+                <button class="theme-toggle" id="themeToggleBtn" aria-label="Alternar Tema">
+                    <!-- Icono de Luna -->
+                    <svg id="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <!-- Icono de Sol (oculto por defecto) -->
+                    <svg id="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
 
                 <!-- Mobile Menu Toggle -->
                 <button class="mobile-menu-btn" aria-label="Menú">
@@ -1235,95 +1172,45 @@ void main() {
         const locSpace = gl.getUniformLocation(program, "u_space");
         const locCursor = gl.getUniformLocation(program, "u_cursor");
 
-        // Definición de las 6 paletas de color para el Shader WebGL
-        const themes = {
-            'light-green': new Float32Array([
-                0.02, 0.18, 0.08,    // Verde profundo
-                0.15, 0.50, 0.28,    // Verde esmeralda
-                0.45, 0.85, 0.55,    // Verde claro brillante
-                0.80, 0.98, 0.85,    // Verde extra claro
-                0,0,0, 0,0,0, 0,0,0, 0,0,0
-            ]),
-            'light-classic': new Float32Array([
-                1.00, 1.00, 1.00,    // Blanco puro como color principal/base
-                0.65, 0.92, 0.75,    // Verde mucho más claro y apastelado
-                1.00, 0.80, 0.60,    // Naranja suave (durazno) para mezcla sutil
-                1.00, 1.00, 1.00,    // Blanco puro de relleno
-                0,0,0, 0,0,0, 0,0,0, 0,0,0
-            ]),
-            'light-white': new Float32Array([
-                1.00, 1.00, 1.00,    // Blanco puro
-                0.95, 0.95, 0.95,    // Gris sutil
-                1.00, 1.00, 1.00,    // Blanco
-                0.98, 0.98, 0.98,    // Gris muy suave
-                0,0,0, 0,0,0, 0,0,0, 0,0,0
-            ]),
-            'dark-green': new Float32Array([
-                0.02, 0.05, 0.03,    // Casi negro verdoso
-                0.05, 0.20, 0.10,    // Verde oscuro
-                0.00, 0.00, 0.00,    // Negro
-                0.10, 0.30, 0.15,    // Verde apagado
-                0,0,0, 0,0,0, 0,0,0, 0,0,0
-            ]),
-            'dark-grid': new Float32Array([
-                0.00, 0.00, 0.00,    // Negro puro
-                0.00, 0.00, 0.00,    // Negro puro
-                0.00, 0.00, 0.00,    // Negro puro
-                0.00, 0.00, 0.00,    // Negro puro
-                0,0,0, 0,0,0, 0,0,0, 0,0,0
-            ]),
-            'dark-thermal': new Float32Array([
-                0.00, 0.00, 0.40,    // Azul oscuro (fondo frío)
-                1.00, 0.00, 0.00,    // Rojo intenso
-                1.00, 0.50, 0.00,    // Naranja fuego
-                1.00, 1.00, 0.00,    // Amarillo calor
-                0,0,0, 0,0,0, 0,0,0, 0,0,0
-            ])
-        };
+        // Definición de las 2 paletas de color para el Shader WebGL
+        const themeLight = new Float32Array([
+            1.00, 1.00, 1.00,    // Blanco puro como color principal/base
+            0.65, 0.92, 0.75,    // Verde mucho más claro y apastelado
+            1.00, 0.80, 0.60,    // Naranja suave (durazno) para mezcla sutil
+            1.00, 1.00, 1.00,    // Blanco puro de relleno
+            0,0,0, 0,0,0, 0,0,0, 0,0,0
+        ]);
+        const themeDark = new Float32Array([
+            0.02, 0.05, 0.03,    // Casi negro verdoso
+            0.05, 0.20, 0.10,    // Verde oscuro
+            0.00, 0.00, 0.00,    // Negro
+            0.10, 0.30, 0.15,    // Verde apagado
+            0,0,0, 0,0,0, 0,0,0, 0,0,0
+        ]);
 
-        gl.uniform3fv(locColors, themes['light-green']); // Tema inicial
+        document.documentElement.className = 'theme-light-classic';
+        gl.uniform3fv(locColors, themeLight); 
 
-        // Lógica del Selector Desplegable de Temas
-        const themeSelectorDiv = document.getElementById('themeSelectorDiv');
+        // Lógica del Toggle de Tema (Día/Noche)
         const themeToggleBtn = document.getElementById('themeToggleBtn');
-        const themeOptions = document.querySelectorAll('.theme-option');
+        const iconMoon = document.getElementById('icon-moon');
+        const iconSun = document.getElementById('icon-sun');
+        let isDarkMode = false;
         
-        // Abrir/Cerrar menú al hacer clic en el botón
         themeToggleBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            themeSelectorDiv.classList.toggle('open');
-        });
-
-        // Cerrar menú si se hace clic fuera
-        document.addEventListener('click', (e) => {
-            if (!themeSelectorDiv.contains(e.target)) {
-                themeSelectorDiv.classList.remove('open');
+            isDarkMode = !isDarkMode;
+            if (isDarkMode) {
+                document.documentElement.className = 'dark-mode theme-dark-green';
+                gl.uniform3fv(locColors, themeDark);
+                if(iconMoon) iconMoon.style.display = 'none';
+                if(iconSun) iconSun.style.display = 'block';
+            } else {
+                document.documentElement.className = 'theme-light-classic';
+                gl.uniform3fv(locColors, themeLight);
+                if(iconMoon) iconMoon.style.display = 'block';
+                if(iconSun) iconSun.style.display = 'none';
             }
-        });
-
-        // Seleccionar tema
-        themeOptions.forEach(option => {
-            option.addEventListener('click', () => {
-                const themeName = option.getAttribute('data-theme');
-                
-                // Aplicar clases estructurales HTML (Modo oscuro y cuadrícula)
-                document.documentElement.className = ''; 
-                document.documentElement.classList.add(`theme-${themeName}`); // Clase específica del tema
-                
-                if (themeName.startsWith('dark')) {
-                    document.documentElement.classList.add('dark-mode');
-                }
-                
-                // Actualizar Shader WebGL
-                if (themes[themeName]) {
-                    gl.uniform3fv(locColors, themes[themeName]);
-                }
-                
-                // Actualizar UI del selector
-                themeOptions.forEach(btn => btn.classList.remove('active'));
-                option.classList.add('active');
-                themeSelectorDiv.classList.remove('open');
-            });
         });
 
         // Lógica del Menú Móvil
