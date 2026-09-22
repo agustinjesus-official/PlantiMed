@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PlantiMED | Portal de Estudios</title>
+    
+    <link rel="icon" type="image/svg+xml" href="Planti med logo vector.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           1. VARIABLES Y SISTEMA DE DISEÑO
+           ========================================================================== */
+        :root {
+            /* Modo Claro (Default) */
+            --bg-base: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.9);
+            --glass-hover: rgba(255, 255, 255, 0.85);
+            --glass-active: #ffffff;
+            --glass-shadow: rgba(0,0,0,0.06);
+            --input-bg: rgba(255, 255, 255, 0.85);
+            --result-bg: rgba(255, 255, 255, 0.9);
+
+            --primary-orange: rgb(255, 112, 0);
+            --emerald-green: #00C853; 
+            
+            --font-main: 'Outfit', -apple-system, sans-serif;
+            --font-mono: 'Space Grotesk', monospace;
+            
+            /* Emil Kowalski Easings */
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+            --transition-smooth: transform 200ms var(--ease-out), opacity 200ms var(--ease-out), box-shadow 200ms var(--ease-out), background-color 200ms var(--ease-out), border-color 200ms var(--ease-out), color 200ms var(--ease-out);
+        }
+
+        html.dark-mode {
+            /* Modo Oscuro (Gris azulado oscuro) */
+            --bg-base: #0f172a; 
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-hover: rgba(30, 41, 59, 0.8);
+            --glass-active: rgba(51, 65, 85, 1);
+            --glass-shadow: rgba(0,0,0,0.4);
+            --input-bg: rgba(15, 23, 42, 0.75);
+            --result-bg: rgba(15, 23, 42, 0.85);
+        }
+
+        /* ==========================================================================
+           2. RESET & ESTILOS BASE
+           ========================================================================== */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html {
+            background-color: var(--bg-base); 
+            color: var(--text-primary);
+            font-family: var(--font-main);
+            overflow-x: hidden;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            transition: background-color 400ms ease;
+        }
+
+        body {
+            background-color: transparent;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        .container { width: 100%; max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+        /* ==========================================================================
+           3. WEBGL BACKGROUND
+           ========================================================================== */
+        #bg-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; 
+            height: 100vh;
+            height: 100dvh;
+            z-index: 0;
+            filter: blur(50px);
+            opacity: 1;
+            pointer-events: none;
+            transform: scale(1.2); 
+        }
+
+        /* ==========================================================================
+           4. HEADER MINIMALISTA & NAVEGACIÓN VIDRIO
+           ========================================================================== */
+        .header {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 100;
+            padding: 24px 0;
+            pointer-events: none; 
+        }
+
+        .header-inner {
+            display: flex; justify-content: space-between; align-items: center;
+            pointer-events: auto;
+        }
+
+        .brand-logo-img {
+            height: 36px; width: auto; object-fit: contain;
+            transition: var(--transition-smooth);
+            filter: drop-shadow(0 2px 10px rgba(0,0,0,0.1));
+        }
+
+        .glass-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            padding: 6px;
+            box-shadow: 0 10px 40px var(--glass-shadow);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-link {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 8px 18px;
+            border-radius: 100px;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .nav-link.active {
+            color: var(--text-primary);
+            background: var(--glass-active);
+            box-shadow: 0 2px 10px var(--glass-shadow);
+            font-weight: 600;
+        }
+        
+        .theme-toggle, .mobile-menu-btn {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            width: 46px; height: 46px;
+            display: flex;
+            align-items: center; justify-content: center;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            pointer-events: auto;
+        }
+        
+        .mobile-menu-btn { display: none; }
+        .header-actions { display: flex; gap: 8px; }
+
+        @media (max-width: 768px) {
+            .glass-nav { display: none; }
+            .mobile-menu-btn { display: flex; }
+            .brand-logo-img { height: 28px; }
+        }
+
+        /* Mobile Menu Overlay */
+        .mobile-menu-overlay {
+            position: fixed;
+            top: 90px; left: 16px; right: 16px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 12px;
+            z-index: 99;
+            box-shadow: 0 20px 50px var(--glass-shadow);
+            
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-15px) scale(0.98);
+            transition: var(--transition-smooth);
+        }
+
+        .mobile-menu-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateY(0) scale(1);
+        }
+
+        .mobile-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .mobile-nav-link {
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            padding: 14px 20px;
+            border-radius: 16px;
+            transition: var(--transition-smooth);
+            text-align: center;
+        }
+
+        .mobile-nav-link.active {
+            color: var(--text-primary);
+            background: var(--glass-active);
+            font-weight: 600;
+            box-shadow: 0 2px 10px var(--glass-shadow);
+        }
+
+        /* ==========================================================================
+           5. SECCIÓN DE INICIO / BIENVENIDA
+           ========================================================================== */
+        .welcome-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 100px 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 60px 40px;
+            max-width: 800px;
+            text-align: center;
+            box-shadow: 0 20px 50px var(--glass-shadow);
+            transition: var(--transition-smooth);
+        }
+
+        .welcome-title {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .welcome-title span {
+            background: linear-gradient(135deg, var(--emerald-green), var(--primary-orange));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            line-height: 1.5;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-title { font-size: 2.5rem; letter-spacing: -1px; }
+            .welcome-subtitle { font-size: 1.1rem; }
+            .glass-panel { padding: 40px 20px; border-radius: 24px; }
+        }
+
+        /* ==========================================================================
+           6. PORTAL DE BÚSQUEDA MINIMALISTA
+           ========================================================================== */
+        .search-section {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .search-container {
+            width: 100%; max-width: 440px;
+            text-align: center;
+            
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+            
+            @starting-style {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+            }
+        }
+
+        .search-title {
+            font-size: 1.75rem; font-weight: 600; color: var(--text-primary);
+            margin-bottom: 6px; letter-spacing: -0.5px;
+            transition: color 400ms;
+        }
+
+        .search-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem; margin-bottom: 40px;
+            font-weight: 500;
+        }
+
+        .minimal-search-form .input-wrapper {
+            position: relative;
+            display: flex; align-items: center;
+            background: var(--input-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 6px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 10px 40px rgba(255, 106, 0, 0.15);
+        }
+
+        html.dark-mode .minimal-search-form .input-wrapper {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+
+        .minimal-search-form .input-wrapper:focus-within {
+            border-color: var(--primary-orange);
+            background: var(--glass-active);
+            box-shadow: 0 15px 50px rgba(255, 106, 0, 0.25);
+        }
+
+        .minimal-search-form svg.search-icon {
+            color: var(--text-secondary);
+            margin-left: 14px;
+        }
+
+        .minimal-search-form input {
+            flex: 1;
+            background: transparent; border: none; outline: none;
+            color: var(--text-primary); font-size: 1.05rem;
+            padding: 14px;
+            font-family: var(--font-main);
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+
+        .minimal-search-form input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.6;
+        }
+
+        .btn-minimal-submit {
+            background: var(--primary-orange);
+            color: #fff;
+            border: none; border-radius: 12px;
+            width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+        
+        .btn-minimal-submit svg { margin: 0; color: inherit; }
+
+        /* ==========================================================================
+           6. RESULTADOS
+           ========================================================================== */
+        .search-results {
+            margin-top: 24px;
+            background: var(--result-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            transition: var(--transition-smooth);
+            
+            @starting-style {
+                opacity: 0;
+                transform: translateY(10px) scale(0.97);
+            }
+        }
+
+        .result-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .status-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--emerald-green);
+            box-shadow: 0 0 8px var(--emerald-green);
+        }
+
+        .result-status {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 0.75rem; font-weight: 600; color: var(--emerald-green);
+            letter-spacing: 0.5px;
+        }
+
+        .result-date {
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-secondary);
+        }
+
+        .result-name {
+            font-size: 1.1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px;
+        }
+        
+        .result-desc {
+            font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 20px;
+        }
+
+        .btn-download {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--primary-orange);
+            color: var(--primary-orange);
+            padding: 12px;
+            border-radius: 10px;
+            font-family: var(--font-main);
+            font-size: 0.9rem; font-weight: 600;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        /* ==========================================================================
+           7. MICRO-INTERACCIONES (Emil Kowalski)
+           ========================================================================== */
+        .btn-minimal-submit:active, .btn-download:active {
+            transform: scale(0.95) !important;
+            transition-duration: 120ms !important;
+        }
+
+        @media (hover: hover) and (pointer: fine) {
+            .brand-logo-img:hover { transform: scale(1.02); }
+            .btn-minimal-submit:hover { filter: brightness(1.1); transform: scale(1.04); }
+            .btn-download:hover { background: var(--primary-orange); color: #fff; }
+            
+            /* Nav Hovers */
+            .nav-link:not(.active):hover {
+                color: var(--text-primary);
+                background: var(--glass-hover);
+                transform: scale(1.05);
+            }
+            .theme-toggle:hover, .mobile-menu-btn:hover { 
+                background: var(--glass-hover); 
+                transform: scale(1.05); 
+            }
+        }
+
+        @media (hover: none) {
+            .brand-logo-img:hover, .btn-minimal-submit:hover, .btn-download:hover, .nav-link:hover, .mobile-menu-btn:hover, .theme-toggle:hover { transform: none !important; }
+        }
+        
+        .nav-link:active, .mobile-menu-btn:active, .theme-toggle:active, .btn-minimal-submit:active, .btn-download:active {
+            transform: scale(0.95) !important;
+            transition-duration: 100ms !important;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- FLYING LOGO (Animado al scrollear) -->
+    <img src="Planti med logo vector.svg" id="flyingLogo" alt="" style="position: fixed; top: 0; left: 0; opacity: 0; z-index: 1000; will-change: transform, width; transform-origin: top left; pointer-events: none; transition: opacity 0.3s ease;">
+
+    <!-- HEADER MINIMALISTA Y GLASSMORPHISM -->
+    <header class="header">
+        <div class="container header-inner">
+            <a href="#" class="logo" aria-label="PlantiMED Inicio">
+                <img src="Planti med logo vector.svg" alt="PlantiMED Logo" class="brand-logo-img" id="headerLogoDummy" style="opacity: 0;">
+            </a>
+            
+            <!-- Navbar Desktop -->
+            <nav class="glass-nav" id="headerNav" style="opacity: 0;">
+                <a href="#" class="nav-link active">Inicio</a>
+                <a href="#" class="nav-link">Nosotros</a>
+                <a href="#" class="nav-link">Portal Paciente</a>
+                <a href="#" class="nav-link">Profesionales</a>
+            </nav>
+            
+            <!-- Actions (Theme Toggle + Mobile Menu) -->
+            <div class="header-actions" id="headerActions" style="opacity: 0;">
+                <button class="theme-toggle" id="themeToggleBtn" aria-label="Cambiar Tema">
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-btn" aria-label="Menú">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div class="mobile-menu-overlay" id="mobileMenu">
+        <nav class="mobile-nav">
+            <a href="#" class="mobile-nav-link active">Inicio</a>
+            <a href="#" class="mobile-nav-link">Nosotros</a>
+            <a href="#" class="mobile-nav-link">Portal Paciente</a>
+            <a href="#" class="mobile-nav-link">Profesionales</a>
+        </nav>
+    </div>
+
+    <!-- HERO SECTION (Inicio con logo gigante) -->
+    <section class="hero-section" style="height: 100vh; width: 100vw; position: relative; z-index: 1;">
+        <div style="height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <img src="Planti med logo vector.svg" id="heroLogoDummy" style="width: 80vw; max-width: 600px; opacity: 0; pointer-events: none;">
+        </div>
+    </section>
+
+    <!-- WELCOME SECTION (Espacio para inicio institucional) -->
+    <section class="welcome-section">
+        <div class="glass-panel">
+            <h1 class="welcome-title">Bienvenido a <span>PlantiMED</span></h1>
+            <p class="welcome-subtitle">Tu portal de salud inteligente. Espacio en blanco reservado para diseñar la presentación institucional, novedades o accesos rápidos de la clínica.</p>
+        </div>
+    </section>
+
+    <!-- PORTAL DE BÚSQUEDA MINIMALISTA (Empujado más abajo) -->
+    <main class="search-section" style="min-height: 100vh; padding-top: 100px;">
+        <div class="search-container">
+            <h1 class="search-title">Consultar Estudio</h1>
+            <p class="search-subtitle">Ingresa tu código alfanumérico o DNI.</p>
+            
+            <form class="minimal-search-form" id="searchForm">
+                <div class="input-wrapper">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Ej: PLM-8492" required autocomplete="off">
+                    <button type="submit" class="btn-minimal-submit" aria-label="Buscar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+            <div class="search-results" id="searchResults">
+                <div class="result-header">
+                    <div class="result-status">
+                        <div class="status-dot"></div>
+                        DISPONIBLE
+                    </div>
+                    <div class="result-date" id="resDate">18/09/2026</div>
+                </div>
+                <div class="result-name" id="resPatient">Martín Gómez</div>
+                <div class="result-desc">Análisis Baropodométrico Estático y Dinámico.</div>
+                
+                <button class="btn-download" onclick="alert('Iniciando descarga segura...')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Descargar Informe PDF
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Logica del buscador
+        document.getElementById('searchForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('searchInput');
+            const resBox = document.getElementById('searchResults');
+            const btn = document.querySelector('.btn-minimal-submit');
+            
+            if(input.value.trim().length > 0) {
+                // Simulacion de carga
+                btn.style.opacity = '0.5';
+                btn.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    resBox.style.display = 'block';
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                }, 400);
+            }
+        });
+
+        // ==========================================
+        // WEBGL SHADER (Fondo Mesh Drift)
+        // ==========================================
+        const canvas = document.getElementById('bg-canvas');
+        const gl = canvas.getContext('webgl');
+
+        const vsSource = `
+        attribute vec2 position;
+        void main() { gl_Position = vec4(position, 0.0, 1.0); }
+        `;
+
+        const fsSource = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec3 u_colors[8];
+uniform vec4 u_scene; uniform vec4 u_shape; uniform vec4 u_surface;
+uniform vec4 u_finish; uniform vec4 u_transform; uniform vec4 u_space; uniform vec4 u_cursor;
+#define u_resolution u_scene.xy
+#define u_time u_scene.z
+#define u_colorCount u_scene.w
+#define u_scale u_shape.x
+#define u_intensity u_shape.y
+#define u_paramA u_shape.z
+#define u_warp u_shape.w
+#define u_detail u_surface.x
+#define u_contrast u_surface.y
+#define u_brightness u_surface.z
+#define u_saturation u_surface.w
+#define u_hue u_finish.x
+#define u_vignette u_finish.y
+#define u_blur u_finish.z
+#define u_grain u_finish.w
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+#define u_seed u_transform.x
+#else
+#define u_seed mod(u_transform.x, 31.0)
+#endif
+#define u_rotate u_transform.y
+#define u_drift u_transform.z
+#define u_oklab u_transform.w
+#define u_offset u_space.xy
+#define u_mouse u_space.zw
+#define u_cursorPresence u_cursor.x
+#define u_cursorEffect u_cursor.y
+#define u_cursorStrength u_cursor.z
+#define u_cursorRadius u_cursor.w
+
+float hash21(vec2 p) {
+#ifndef GL_FRAGMENT_PRECISION_HIGH
+  p = mod(p, 31.0);
+#endif
+  p = fract(p * vec2(234.34, 435.345)); p += dot(p, p + 34.23); return fract(p.x * p.y);
+}
+float grainHash(vec2 p) {
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031); p3 += dot(p3, p3.yzx + 33.33); return fract((p3.x + p3.y) * p3.z);
+}
+float noise(vec2 p) {
+  vec2 i = floor(p); vec2 f = fract(p); vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash21(i), hash21(i + vec2(1.0, 0.0)), u.x),
+             mix(hash21(i + vec2(0.0, 1.0)), hash21(i + vec2(1.0, 1.0)), u.x), u.y);
+}
+float fbm(vec2 p) {
+  float v = 0.0; float a = 0.5;
+  for (int i = 0; i < 5; i++) { v += a * noise(p); p = p * 2.03 + vec2(17.0, 9.2); a *= 0.5; }
+  return v;
+}
+vec3 shade(vec2 uv, vec2 p, float t) {
+  vec3 acc = u_colors[0] * 0.15; float total = 0.15;
+  for (int i = 0; i < 8; i++) {
+    if (float(i) >= u_colorCount) break;
+    float fi = float(i);
+    vec2 c = vec2(sin(t * (0.21 + fi * 0.071) + fi * 2.4 + u_seed),
+                  cos(t * (0.17 + fi * 0.093) + fi * 1.7)) * (0.45 + u_intensity * 0.35);
+    float w = exp(-dot(p - c, p - c) * 6.0);
+    acc += u_colors[i] * w; total += w;
+  }
+  return acc / total;
+}
+void main() {
+  vec2 uv = gl_FragCoord.xy / u_resolution.xy; vec2 screenUv = uv;
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+  float cursorMask = 0.0;
+  uv = p * min(u_resolution.x, u_resolution.y) / u_resolution.xy + 0.5;
+  p *= u_scale;
+  if (abs(u_rotate) > 0.0001) { float cr = cos(u_rotate), sr = sin(u_rotate); p = mat2(cr, -sr, sr, cr) * p; }
+  p += u_offset;
+  if (u_drift > 0.0001) p += u_drift * vec2(sin(u_time * 0.31), cos(u_time * 0.23));
+  if (u_warp > 0.0) p += u_warp * (vec2(fbm(p * u_detail + u_seed), fbm(p * u_detail + vec2(5.2, 1.3))) - 0.5);
+  vec3 col;
+  if (u_blur > 0.0) {
+    float e = u_blur; float pe = e * u_scale; vec2 uvE = vec2(e) * min(u_resolution.x, u_resolution.y) / u_resolution.xy;
+    col  = shade(uv, p, u_time) * 0.36; col += shade(uv + vec2(uvE.x, 0.0), p + vec2(pe, 0.0), u_time) * 0.16;
+    col += shade(uv - vec2(uvE.x, 0.0), p - vec2(pe, 0.0), u_time) * 0.16;
+    col += shade(uv + vec2(0.0, uvE.y), p + vec2(0.0, pe), u_time) * 0.16;
+    col += shade(uv - vec2(0.0, uvE.y), p - vec2(0.0, pe), u_time) * 0.16;
+  } else { col = shade(uv, p, u_time); }
+  if (abs(u_contrast - 1.0) > 0.0001) col = (col - 0.5) * u_contrast + 0.5;
+  if (abs(u_saturation - 1.0) > 0.0001) { float luma = dot(col, vec3(0.299, 0.587, 0.114)); col = mix(vec3(luma), col, u_saturation); }
+  if (abs(u_brightness) > 0.0001) col += u_brightness;
+  if (u_vignette > 0.0001) { float vd = length(screenUv - 0.5) * 1.41421356; col *= 1.0 - u_vignette * smoothstep(0.35, 1.0, vd); }
+  if (u_grain > 0.0001) col += (grainHash(gl_FragCoord.xy + vec2(u_seed * 17.0, u_seed * 31.0)) - 0.5) * u_grain;
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}
+        `;
+
+        function compileShader(gl, type, source) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        }
+
+        const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource);
+        const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1.0, -1.0, 3.0, -1.0, -1.0, 3.0]), gl.STATIC_DRAW);
+        const positionLocation = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const locColors = gl.getUniformLocation(program, "u_colors");
+        const locScene = gl.getUniformLocation(program, "u_scene");
+        const locShape = gl.getUniformLocation(program, "u_shape");
+        const locSurface = gl.getUniformLocation(program, "u_surface");
+        const locFinish = gl.getUniformLocation(program, "u_finish");
+        const locTransform = gl.getUniformLocation(program, "u_transform");
+        const locSpace = gl.getUniformLocation(program, "u_space");
+        const locCursor = gl.getUniformLocation(program, "u_cursor");
+
+        // Paletas de Color para el Shader (Tonos pastel / apagados)
+        const colorsLight = new Float32Array([
+            1.0, 1.0, 1.0,       // Blanco puro
+            1.0, 1.0, 1.0,       // Blanco puro extra
+            0.85, 0.50, 0.20,    // Naranja más suave y menos chillón
+            0.30, 0.65, 0.40,    // Verde menos chillón (pastel esmeralda)
+            0,0,0, 0,0,0, 0,0,0, 0,0,0
+        ]);
+        
+        const colorsDark = new Float32Array([
+            0.06, 0.09, 0.16,    // Gris azulado muy oscuro (#0f172a)
+            0.06, 0.09, 0.16,    // Gris azulado muy oscuro
+            0.85, 0.50, 0.20,    // Naranja más suave
+            0.30, 0.65, 0.40,    // Verde menos chillón
+            0,0,0, 0,0,0, 0,0,0, 0,0,0
+        ]);
+
+        gl.uniform3fv(locColors, colorsLight); // Default a Claro
+
+        // Lógica del Theme Toggle
+        let isDark = false;
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const moonIcon = document.querySelector('.moon-icon');
+        const sunIcon = document.querySelector('.sun-icon');
+        
+        themeToggleBtn.addEventListener('click', () => {
+            isDark = !isDark;
+            document.documentElement.classList.toggle('dark-mode', isDark);
+            
+            // Alternar Iconos
+            moonIcon.style.display = isDark ? 'none' : 'block';
+            sunIcon.style.display = isDark ? 'block' : 'none';
+            
+            // Actualizar Shader
+            gl.uniform3fv(locColors, isDark ? colorsDark : colorsLight);
+        });
+
+        // Lógica del Menú Móvil
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+
+        // ==========================================
+        // SCROLL ANIMATION (Flying Logo)
+        // ==========================================
+        const flyingLogo = document.getElementById('flyingLogo');
+        const heroDummy = document.getElementById('heroLogoDummy');
+        const headerDummy = document.getElementById('headerLogoDummy');
+        const headerNav = document.getElementById('headerNav');
+        const headerActions = document.getElementById('headerActions');
+
+        let startAbsX, startAbsY, startWidth;
+        let endFixedX, endFixedY, endWidth;
+
+        let targetScroll = 0;
+        let currentScroll = 0;
+
+        function updateRects() {
+            // Calculamos posición absoluta inicial del hero logo (asumiendo scroll 0 para referencia base)
+            const scrollY = window.scrollY;
+            const heroRect = heroDummy.getBoundingClientRect();
+            startAbsX = heroRect.left;
+            startAbsY = heroRect.top + scrollY; 
+            startWidth = heroRect.width;
+
+            // Calculamos posición final fija del header logo
+            const headerRect = headerDummy.getBoundingClientRect();
+            endFixedX = headerRect.left;
+            endFixedY = headerRect.top;
+            endWidth = headerRect.width;
+            
+            flyingLogo.style.opacity = '1';
+        }
+
+        // Loop de renderizado para máxima fluidez (Lerp)
+        function renderAnimation() {
+            // Lerp para suavizar el scroll wheel (0.05 es más lento y fluido que 0.08)
+            currentScroll += (targetScroll - currentScroll) * 0.05;
+            
+            const maxScroll = window.innerHeight * 1.0; 
+            
+            let progress = currentScroll / maxScroll;
+            progress = Math.min(Math.max(progress, 0), 1); 
+
+            // Interpolación suavizada (Cubic Ease Out)
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+
+            const currentStartY = startAbsY - currentScroll;
+
+            const currentX = startAbsX + (endFixedX - startAbsX) * easeProgress;
+            const currentY = currentStartY + (endFixedY - currentStartY) * easeProgress;
+            const currentW = startWidth + (endWidth - startWidth) * easeProgress;
+
+            // Aplicamos transformaciones usando translate3d para aceleración GPU
+            flyingLogo.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`;
+            flyingLogo.style.width = `${currentW}px`;
+            
+            // Efecto de desvanecimiento para la navbar
+            headerNav.style.opacity = progress;
+            headerActions.style.opacity = progress;
+            headerNav.style.pointerEvents = progress > 0.5 ? 'auto' : 'none';
+            headerActions.style.pointerEvents = progress > 0.5 ? 'auto' : 'none';
+
+            requestAnimationFrame(renderAnimation);
+        }
+
+        window.addEventListener('scroll', () => {
+            targetScroll = window.scrollY;
+        }, { passive: true });
+        
+        window.addEventListener('resize', updateRects);
+        
+        // Inicializar
+        setTimeout(() => {
+            targetScroll = window.scrollY;
+            currentScroll = targetScroll;
+            updateRects();
+            requestAnimationFrame(renderAnimation);
+        }, 100);
+
+        // Función de Scroll Suave y Lento (Custom)
+        function slowAutoScroll(targetY, durationMs) {
+            const startY = window.scrollY;
+            const distance = targetY - startY;
+            let startStamp = null;
+
+            function step(timestamp) {
+                if (!startStamp) startStamp = timestamp;
+                const elapsed = timestamp - startStamp;
+                let t = Math.min(elapsed / durationMs, 1);
+                
+                // Ease in out (suavidad al inicio y al final)
+                const ease = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+                
+                window.scrollTo(0, startY + distance * ease);
+                
+                if (elapsed < durationMs) {
+                    requestAnimationFrame(step);
+                }
+            }
+            requestAnimationFrame(step);
+        }
+
+        // Auto-scroll cinemático después de 1 segundo
+        setTimeout(() => {
+            if (window.scrollY < 50) {
+                // Hacemos el scroll manualmente tomando 1.8 segundos (1800ms)
+                slowAutoScroll(window.innerHeight * 1.0, 1800);
+            }
+        }, 1000);
+
+        // ==========================================
+        // RENDER SHADER
+        // ==========================================
+        let startTime = performance.now();
+        let isHidden = false;
+        document.addEventListener("visibilitychange", () => { isHidden = document.hidden; });
+
+        function render(time) {
+            if (!isHidden) {
+                const dpr = Math.min(window.devicePixelRatio, 2);
+                const w = canvas.clientWidth * dpr;
+                const h = canvas.clientHeight * dpr;
+                if (canvas.width !== w || canvas.height !== h) {
+                    canvas.width = w; canvas.height = h; gl.viewport(0, 0, w, h);
+                }
+                const t = (time - startTime) / 1000.0;
+                
+                // Efecto Lámpara de Lava: suave, lento y sin ruido
+                gl.uniform4f(locScene, w, h, t * 0.15, 4.0); // Velocidad reducida
+                gl.uniform4f(locShape, 0.85, 0.20, 0.50, 0.00); // Menos intensidad, burbujas más grandes
+                gl.uniform4f(locSurface, 2.40, 1.40, 0.00, 1.00); // Mayor contraste
+                gl.uniform4f(locFinish, 0.00, 0.00, 0.000, 0.00); // Ruido (grain) en 0.00
+                gl.uniform4f(locTransform, 1453.0, 0.00, 0.00, 0.0);
+                gl.uniform4f(locSpace, 0.00, 0.00, 0.0, 0.0);
+                gl.uniform4f(locCursor, 0.0, 2.0, 0.65, 0.46);
+                
+                gl.drawArrays(gl.TRIANGLES, 0, 3);
+            }
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>
